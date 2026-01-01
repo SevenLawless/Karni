@@ -26,7 +26,22 @@ A simple web application for tracking shared apartment expenses between two user
 - MySQL Server (MySQL Workbench ready as per your setup)
 - npm or yarn
 
-## Setup Instructions
+## Quick Start (Windows)
+
+**Easiest way to start the app:**
+
+1. Double-click `start-app.bat` in the project root
+2. The script will:
+   - Check and install dependencies if needed
+   - Start the backend server (port 5000)
+   - Start the frontend server (port 3000)
+   - Open your browser automatically
+
+The app will be available at `http://localhost:3000`
+
+**Note:** Make sure MySQL is running and configured in `backend/.env` before starting.
+
+## Manual Setup Instructions
 
 ### 1. Database Setup
 
