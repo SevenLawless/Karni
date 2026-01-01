@@ -1,0 +1,268 @@
+.transaction-list-container {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-secondary);
+}
+
+.empty-state p {
+  margin: 10px 0;
+  font-size: 1.1rem;
+}
+
+.empty-hint {
+  font-size: 0.9rem !important;
+  color: var(--text-secondary);
+}
+
+.transaction-list {
+  background: var(--card-bg);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.transaction-table-header {
+  display: grid;
+  grid-template-columns: 120px 2fr 120px 120px 100px 150px;
+  gap: 15px;
+  padding: 15px 20px;
+  background: var(--header-bg);
+  border-bottom: 2px solid var(--border-color);
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.transaction-row {
+  display: grid;
+  grid-template-columns: 120px 2fr 120px 120px 100px 150px;
+  gap: 15px;
+  padding: 15px 20px;
+  border-bottom: 1px solid var(--border-color);
+  align-items: center;
+  transition: background 0.2s;
+}
+
+.transaction-row:hover {
+  background: var(--hover-bg);
+}
+
+.transaction-row:last-child {
+  border-bottom: none;
+}
+
+.col-date {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.col-description {
+  min-width: 0;
+}
+
+.description-text {
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  word-break: break-word;
+}
+
+.notes-text {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-style: italic;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.col-category {
+  display: flex;
+  align-items: center;
+}
+
+.category-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  background: var(--badge-bg);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  text-transform: capitalize;
+}
+
+.col-amount {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.col-payer {
+  display: flex;
+  align-items: center;
+}
+
+.payer-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.payer-badge.zaki {
+  background: rgba(66, 153, 225, 0.2);
+  color: #4299e1;
+}
+
+.payer-badge.reda {
+  background: rgba(237, 137, 54, 0.2);
+  color: #ed8936;
+}
+
+.payer-badge.both {
+  background: rgba(72, 187, 120, 0.2);
+  color: #48bb78;
+}
+
+.col-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-action {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-edit {
+  background: var(--secondary-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.btn-edit:hover {
+  background: var(--hover-bg);
+}
+
+.btn-delete {
+  background: rgba(244, 67, 54, 0.1);
+  color: #f44336;
+  border: 1px solid rgba(244, 67, 54, 0.3);
+}
+
+.btn-delete:hover {
+  background: rgba(244, 67, 54, 0.2);
+}
+
+.transaction-summary {
+  margin-top: 20px;
+  padding: 15px;
+  background: var(--card-bg);
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.transaction-summary p {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.transaction-summary strong {
+  color: var(--text-primary);
+}
+
+@media (max-width: 1024px) {
+  .transaction-table-header,
+  .transaction-row {
+    grid-template-columns: 100px 1.5fr 100px 100px 80px 140px;
+    gap: 10px;
+    padding: 12px 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  .transaction-list-container {
+    padding: 15px;
+  }
+
+  .transaction-table-header {
+    display: none;
+  }
+
+  .transaction-row {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 15px;
+    border-bottom: 2px solid var(--border-color);
+  }
+
+  .col-date,
+  .col-description,
+  .col-category,
+  .col-amount,
+  .col-payer {
+    width: 100%;
+  }
+
+  .col-date::before {
+    content: 'Date: ';
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  .col-description::before {
+    content: 'Description: ';
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  .col-category::before {
+    content: 'Category: ';
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  .col-amount::before {
+    content: 'Amount: ';
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  .col-payer::before {
+    content: 'Paid By: ';
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  .col-actions {
+    width: 100%;
+    justify-content: flex-end;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-color);
+  }
+
+  .transaction-summary {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+}
+

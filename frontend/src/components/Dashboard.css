@@ -1,0 +1,144 @@
+.dashboard {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.dashboard-header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: var(--card-bg);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-header h2 {
+  margin: 0 0 15px 0;
+  color: var(--text-primary);
+}
+
+.balance-display {
+  font-size: 3rem;
+  font-weight: bold;
+  margin: 15px 0;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.balance-display.positive {
+  color: #4caf50;
+  background: rgba(76, 175, 80, 0.1);
+}
+
+.balance-display.negative {
+  color: #f44336;
+  background: rgba(244, 67, 54, 0.1);
+}
+
+.balance-display.zero {
+  color: var(--text-secondary);
+  background: rgba(128, 128, 128, 0.1);
+}
+
+.balance-message {
+  margin: 10px 0 0 0;
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+}
+
+.dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.stat-card {
+  background: var(--card-bg);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.stat-card h3 {
+  margin: 0 0 15px 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--text-primary);
+  margin-bottom: 5px;
+}
+
+.stat-label {
+  margin: 10px 0 0 0;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.balance-breakdown {
+  background: var(--card-bg);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.balance-breakdown h3 {
+  margin: 0 0 15px 0;
+  color: var(--text-primary);
+}
+
+.breakdown-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.breakdown-item:last-child {
+  border-bottom: none;
+}
+
+.breakdown-label {
+  color: var(--text-secondary);
+}
+
+.breakdown-value {
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.breakdown-value.positive {
+  color: #4caf50;
+}
+
+.breakdown-value.negative {
+  color: #f44336;
+}
+
+@media (max-width: 768px) {
+  .dashboard {
+    padding: 15px;
+  }
+
+  .balance-display {
+    font-size: 2rem;
+  }
+
+  .dashboard-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-value {
+    font-size: 1.5rem;
+  }
+}
+
