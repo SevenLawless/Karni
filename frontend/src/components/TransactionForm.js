@@ -93,10 +93,18 @@ function TransactionForm({ transaction, onSuccess, onCancel }) {
 
     setSubmitting(true);
     try {
+      // Prepare form data - convert empty strings to null for person field
+      const submitData = {
+        ...formData,
+        person: (formData.transaction_type === 'personal' || formData.transaction_type === 'income') 
+          ? formData.person 
+          : null
+      };
+      
       if (transaction) {
-        await transactionAPI.update(transaction.id, formData);
+        await transactionAPI.update(transaction.id, submitData);
       } else {
-        await transactionAPI.create(formData);
+        await transactionAPI.create(submitData);
       }
       onSuccess();
       // Reset form if not editing
@@ -114,7 +122,8 @@ function TransactionForm({ transaction, onSuccess, onCancel }) {
       }
     } catch (error) {
       console.error('Error saving transaction:', error);
-      alert('Failed to save transaction. Please try again.');
+      const errorMessage = error.response?.data?.error || error.message || 'Failed to save transaction. Please try again.';
+      alert(errorMessage);
     } finally {
       setSubmitting(false);
     }

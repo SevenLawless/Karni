@@ -122,8 +122,8 @@ async function updateTransaction(req, res) {
         return res.status(400).json({ error: 'Person field is required for personal and income transactions and must be "zaki" or "reda"' });
       }
     } else {
-      // For shared transactions, person should be null
-      if (person !== null && person !== undefined) {
+      // For shared transactions, person should be null or empty
+      if (person !== null && person !== undefined && person !== '') {
         return res.status(400).json({ error: 'Person field should not be set for shared transactions' });
       }
     }
