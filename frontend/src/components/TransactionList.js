@@ -118,9 +118,9 @@ function TransactionList({ transactions: initialTransactions, onEdit, onDelete, 
                 </div>
                 <div className="col-type">
                   <span className={`type-badge ${transactionType}`}>
-                    {transactionType === 'personal' ? 'Personal' : 'Shared'}
+                    {transactionType === 'personal' ? 'Personal' : transactionType === 'income' ? 'Income' : 'Shared'}
                   </span>
-                  {transactionType === 'personal' && transaction.person && (
+                  {(transactionType === 'personal' || transactionType === 'income') && transaction.person && (
                     <div className="person-label">({transaction.person === 'zaki' ? 'Zaki' : 'Reda'})</div>
                   )}
                 </div>

@@ -49,14 +49,14 @@ async function createTransaction(req, res) {
     }
     
     // Validate transaction_type
-    if (!transaction_type || !['personal', 'shared'].includes(transaction_type)) {
-      return res.status(400).json({ error: 'Invalid transaction_type. Must be "personal" or "shared"' });
+    if (!transaction_type || !['personal', 'shared', 'income'].includes(transaction_type)) {
+      return res.status(400).json({ error: 'Invalid transaction_type. Must be "personal", "shared", or "income"' });
     }
     
-    // If personal transaction, person field is required
-    if (transaction_type === 'personal') {
+    // If personal or income transaction, person field is required
+    if (transaction_type === 'personal' || transaction_type === 'income') {
       if (!person || !['zaki', 'reda'].includes(person)) {
-        return res.status(400).json({ error: 'Person field is required for personal transactions and must be "zaki" or "reda"' });
+        return res.status(400).json({ error: 'Person field is required for personal and income transactions and must be "zaki" or "reda"' });
       }
     } else {
       // For shared transactions, person should be null
@@ -72,7 +72,7 @@ async function createTransaction(req, res) {
       category,
       payer,
       transaction_type,
-      person: transaction_type === 'personal' ? person : null,
+      person: (transaction_type === 'personal' || transaction_type === 'income') ? person : null,
       notes
     });
     
@@ -84,7 +84,12 @@ async function createTransaction(req, res) {
     res.status(201).json(newTransaction);
   } catch (error) {
     console.error('Error creating transaction:', error);
-    res.status(500).json({ error: 'Failed to create transaction' });
+    console.error('Error details:', error.message);
+    console.error('Error stack:', error.stack);
+    res.status(500).json({ 
+      error: 'Failed to create transaction',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 }
 
@@ -107,14 +112,14 @@ async function updateTransaction(req, res) {
     }
     
     // Validate transaction_type
-    if (!transaction_type || !['personal', 'shared'].includes(transaction_type)) {
-      return res.status(400).json({ error: 'Invalid transaction_type. Must be "personal" or "shared"' });
+    if (!transaction_type || !['personal', 'shared', 'income'].includes(transaction_type)) {
+      return res.status(400).json({ error: 'Invalid transaction_type. Must be "personal", "shared", or "income"' });
     }
     
-    // If personal transaction, person field is required
-    if (transaction_type === 'personal') {
+    // If personal or income transaction, person field is required
+    if (transaction_type === 'personal' || transaction_type === 'income') {
       if (!person || !['zaki', 'reda'].includes(person)) {
-        return res.status(400).json({ error: 'Person field is required for personal transactions and must be "zaki" or "reda"' });
+        return res.status(400).json({ error: 'Person field is required for personal and income transactions and must be "zaki" or "reda"' });
       }
     } else {
       // For shared transactions, person should be null
@@ -135,7 +140,7 @@ async function updateTransaction(req, res) {
       category,
       payer,
       transaction_type,
-      person: transaction_type === 'personal' ? person : null,
+      person: (transaction_type === 'personal' || transaction_type === 'income') ? person : null,
       notes
     });
     

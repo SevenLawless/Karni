@@ -124,6 +124,11 @@
   color: #2196f3;
 }
 
+.type-badge.income {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4caf50;
+}
+
 .person-label {
   font-size: 0.75rem;
   color: var(--text-secondary);

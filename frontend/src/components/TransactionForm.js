@@ -60,8 +60,8 @@ function TransactionForm({ transaction, onSuccess, onCancel }) {
       newErrors.transaction_type = 'Transaction type is required';
     }
 
-    if (formData.transaction_type === 'personal' && !formData.person) {
-      newErrors.person = 'Person is required for personal transactions';
+    if ((formData.transaction_type === 'personal' || formData.transaction_type === 'income') && !formData.person) {
+      newErrors.person = 'Person is required for personal and income transactions';
     }
 
     setErrors(newErrors);
@@ -196,17 +196,20 @@ function TransactionForm({ transaction, onSuccess, onCancel }) {
               className={errors.transaction_type ? 'error' : ''}
             >
               <option value="shared">Shared Transaction (50/50 split)</option>
-              <option value="personal">Personal Transaction</option>
+              <option value="personal">Personal Transaction (expense)</option>
+              <option value="income">Income (adds balance)</option>
             </select>
             {errors.transaction_type && <span className="error-message">{errors.transaction_type}</span>}
             <small className="form-hint">
               {formData.transaction_type === 'shared' 
                 ? 'Shared transactions are split 50/50 between both people.'
+                : formData.transaction_type === 'income'
+                ? 'Income transactions add balance to one person\'s wallet.'
                 : 'Personal transactions affect only one person\'s wallet.'}
             </small>
           </div>
 
-          {formData.transaction_type === 'personal' && (
+          {(formData.transaction_type === 'personal' || formData.transaction_type === 'income') && (
             <div className="form-group">
               <label htmlFor="person">Person *</label>
               <select
@@ -221,7 +224,11 @@ function TransactionForm({ transaction, onSuccess, onCancel }) {
                 <option value="reda">Reda</option>
               </select>
               {errors.person && <span className="error-message">{errors.person}</span>}
-              <small className="form-hint">Select whose wallet this transaction affects.</small>
+              <small className="form-hint">
+                {formData.transaction_type === 'income' 
+                  ? 'Select whose wallet receives this income.'
+                  : 'Select whose wallet this transaction affects.'}
+              </small>
             </div>
           )}
 
@@ -242,6 +249,8 @@ function TransactionForm({ transaction, onSuccess, onCancel }) {
             <small className="form-hint">
               {formData.transaction_type === 'shared' 
                 ? 'Costs are automatically split 50/50. Select "Both" if you both paid your share on the spot.'
+                : formData.transaction_type === 'income'
+                ? 'Who received this income (for record keeping).'
                 : 'Who paid for this transaction (for record keeping).'}
             </small>
           </div>

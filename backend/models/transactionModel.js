@@ -91,6 +91,17 @@ async function recalculateBalances() {
           [amount, person]
         );
       }
+    } else if (transactionType === 'income') {
+      // Income transaction: only affects the specified person's wallet
+      const person = transaction.person;
+      if (person === 'zaki' || person === 'reda') {
+        // For income transactions, only the person's wallet is affected
+        // The amount increases their wallet (income)
+        await pool.execute(
+          'UPDATE users SET balance = balance + ? WHERE name = ?',
+          [amount, person]
+        );
+      }
     } else {
       // Shared transaction: split 50/50
       const halfAmount = amount / 2;
@@ -140,6 +151,17 @@ async function updateBalancesForTransaction(transaction, isNew = true) {
       // Payer field is informational only - doesn't affect other person's balance
       await pool.execute(
         'UPDATE users SET balance = balance - ? WHERE name = ?',
+        [amount, person]
+      );
+    }
+  } else if (transactionType === 'income') {
+    // Income transaction: only affects the specified person's wallet
+    const person = transaction.person;
+    if (person === 'zaki' || person === 'reda') {
+      // For income transactions, only the person's wallet is affected
+      // The amount increases their wallet (income)
+      await pool.execute(
+        'UPDATE users SET balance = balance + ? WHERE name = ?',
         [amount, person]
       );
     }

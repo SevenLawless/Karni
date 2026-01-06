@@ -49,7 +49,7 @@ async function initializeDatabase() {
         description VARCHAR(255) NOT NULL,
         category VARCHAR(50) NOT NULL,
         payer ENUM('zaki', 'reda', 'both') NOT NULL,
-        transaction_type ENUM('personal', 'shared') NOT NULL DEFAULT 'shared',
+        transaction_type ENUM('personal', 'shared', 'income') NOT NULL DEFAULT 'shared',
         person VARCHAR(50) NULL,
         notes TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -57,16 +57,31 @@ async function initializeDatabase() {
       )
     `);
 
-    // Add new columns to existing transactions table if they don't exist
+    // Add transaction_type column if it doesn't exist
     try {
       await dbConnection.query(`
         ALTER TABLE transactions 
-        ADD COLUMN transaction_type ENUM('personal', 'shared') NOT NULL DEFAULT 'shared'
+        ADD COLUMN transaction_type ENUM('personal', 'shared', 'income') NOT NULL DEFAULT 'shared'
       `);
+      console.log('Added transaction_type column');
     } catch (error) {
-      // Column might already exist, ignore error
+      // Column already exists, that's fine
       if (!error.message.includes('Duplicate column name') && !error.message.includes('already exists')) {
         console.warn('Warning adding transaction_type column:', error.message);
+      }
+    }
+    
+    // Always modify the column to ensure it includes 'income' (works whether column was just added or already existed)
+    try {
+      await dbConnection.query(`
+        ALTER TABLE transactions 
+        MODIFY COLUMN transaction_type ENUM('personal', 'shared', 'income') NOT NULL DEFAULT 'shared'
+      `);
+      console.log('Ensured transaction_type column includes income');
+    } catch (modifyError) {
+      // Only warn if it's not a "column doesn't exist" error
+      if (!modifyError.message.includes("doesn't exist") && !modifyError.message.includes('Unknown column')) {
+        console.warn('Warning modifying transaction_type column:', modifyError.message);
       }
     }
 
