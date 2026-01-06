@@ -13,6 +13,10 @@ function Dashboard({ balances, transactions }) {
     .filter(t => t.date.startsWith(currentMonth))
     .reduce((sum, t) => sum + parseFloat(t.amount), 0);
 
+  // Calculate shared expenses only (for "who owes whom" calculation)
+  const sharedTransactions = transactions.filter(t => (t.transaction_type || 'shared') === 'shared');
+  const sharedTotal = sharedTransactions.reduce((sum, t) => sum + parseFloat(t.amount), 0);
+
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('fr-MA', {
       style: 'currency',
@@ -20,24 +24,58 @@ function Dashboard({ balances, transactions }) {
     }).format(amount);
   };
 
-  const getBalanceMessage = () => {
-    if (zakiBalance > 0) {
-      return `Zaki is owed ${formatCurrency(zakiBalance)}`;
-    } else if (zakiBalance < 0) {
-      return `Zaki owes ${formatCurrency(Math.abs(zakiBalance))}`;
+  const getSharedBalanceMessage = () => {
+    // Calculate shared balance (only from shared transactions)
+    let sharedZakiBalance = 0;
+    let sharedRedaBalance = 0;
+    
+    sharedTransactions.forEach(transaction => {
+      const halfAmount = parseFloat(transaction.amount) / 2;
+      if (transaction.payer === 'zaki') {
+        sharedZakiBalance += halfAmount;
+        sharedRedaBalance -= halfAmount;
+      } else if (transaction.payer === 'reda') {
+        sharedRedaBalance += halfAmount;
+        sharedZakiBalance -= halfAmount;
+      }
+    });
+
+    if (sharedZakiBalance > 0) {
+      return `Zaki is owed ${formatCurrency(sharedZakiBalance)} from shared expenses`;
+    } else if (sharedZakiBalance < 0) {
+      return `Zaki owes ${formatCurrency(Math.abs(sharedZakiBalance))} for shared expenses`;
     } else {
-      return 'Balanced - no one owes anything';
+      return 'Shared expenses are balanced';
     }
   };
 
   return (
     <div className="dashboard">
-      <div className="dashboard-header">
-        <h2>Current Balance (Zaki)</h2>
-        <div className={`balance-display ${zakiBalance > 0 ? 'positive' : zakiBalance < 0 ? 'negative' : 'zero'}`}>
-          {formatCurrency(zakiBalance)}
+      <div className="dashboard-wallets">
+        <div className="wallet-card">
+          <h3>Zaki's Wallet</h3>
+          <div className={`balance-display ${zakiBalance > 0 ? 'positive' : zakiBalance < 0 ? 'negative' : 'zero'}`}>
+            {formatCurrency(zakiBalance)}
+          </div>
+          <p className="wallet-status">
+            {zakiBalance > 0 ? 'Positive balance' : zakiBalance < 0 ? 'Negative balance' : 'Zero balance'}
+          </p>
         </div>
-        <p className="balance-message">{getBalanceMessage()}</p>
+
+        <div className="wallet-card">
+          <h3>Reda's Wallet</h3>
+          <div className={`balance-display ${redaBalance > 0 ? 'positive' : redaBalance < 0 ? 'negative' : 'zero'}`}>
+            {formatCurrency(redaBalance)}
+          </div>
+          <p className="wallet-status">
+            {redaBalance > 0 ? 'Positive balance' : redaBalance < 0 ? 'Negative balance' : 'Zero balance'}
+          </p>
+        </div>
+      </div>
+
+      <div className="dashboard-header">
+        <h2>Shared Expenses Balance</h2>
+        <p className="balance-message">{getSharedBalanceMessage()}</p>
       </div>
 
       <div className="dashboard-stats">

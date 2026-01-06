@@ -63,18 +63,9 @@ echo.
 echo Backend:  http://localhost:5000
 echo Frontend: http://localhost:3000
 echo.
-echo The browser will open automatically in a few seconds...
+echo The browser will open automatically when React is ready...
 echo.
-echo NOTE: Keep these windows open while using the app.
+echo NOTE: Keep the server windows open while using the app.
 echo       Close them to stop the servers.
 echo.
-
-REM Wait a bit more for React to compile, then open browser
-timeout /t 10 /nobreak >nul
-start http://localhost:3000
-
-echo Browser opened! The app should be loading...
-echo.
-echo Press any key to exit this window (servers will keep running)...
-pause >nul
 

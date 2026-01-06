@@ -49,10 +49,44 @@ async function initializeDatabase() {
         description VARCHAR(255) NOT NULL,
         category VARCHAR(50) NOT NULL,
         payer ENUM('zaki', 'reda', 'both') NOT NULL,
+        transaction_type ENUM('personal', 'shared') NOT NULL DEFAULT 'shared',
+        person VARCHAR(50) NULL,
         notes TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       )
+    `);
+
+    // Add new columns to existing transactions table if they don't exist
+    try {
+      await dbConnection.query(`
+        ALTER TABLE transactions 
+        ADD COLUMN transaction_type ENUM('personal', 'shared') NOT NULL DEFAULT 'shared'
+      `);
+    } catch (error) {
+      // Column might already exist, ignore error
+      if (!error.message.includes('Duplicate column name') && !error.message.includes('already exists')) {
+        console.warn('Warning adding transaction_type column:', error.message);
+      }
+    }
+
+    try {
+      await dbConnection.query(`
+        ALTER TABLE transactions 
+        ADD COLUMN person VARCHAR(50) NULL
+      `);
+    } catch (error) {
+      // Column might already exist, ignore error
+      if (!error.message.includes('Duplicate column name') && !error.message.includes('already exists')) {
+        console.warn('Warning adding person column:', error.message);
+      }
+    }
+
+    // Update existing records to have default transaction_type
+    await dbConnection.query(`
+      UPDATE transactions 
+      SET transaction_type = 'shared' 
+      WHERE transaction_type IS NULL OR transaction_type = ''
     `);
 
     // Initialize users if they don't exist

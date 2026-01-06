@@ -29,7 +29,7 @@
 
 .transaction-table-header {
   display: grid;
-  grid-template-columns: 120px 2fr 120px 120px 100px 150px;
+  grid-template-columns: 120px 2fr 120px 120px 120px 100px 150px;
   gap: 15px;
   padding: 15px 20px;
   background: var(--header-bg);
@@ -43,7 +43,7 @@
 
 .transaction-row {
   display: grid;
-  grid-template-columns: 120px 2fr 120px 120px 100px 150px;
+  grid-template-columns: 120px 2fr 120px 120px 120px 100px 150px;
   gap: 15px;
   padding: 15px 20px;
   border-bottom: 1px solid var(--border-color);
@@ -97,6 +97,37 @@
   color: var(--text-primary);
   font-size: 0.85rem;
   text-transform: capitalize;
+}
+
+.col-type {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.type-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.type-badge.personal {
+  background: rgba(156, 39, 176, 0.2);
+  color: #9c27b0;
+}
+
+.type-badge.shared {
+  background: rgba(33, 150, 243, 0.2);
+  color: #2196f3;
+}
+
+.person-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-style: italic;
 }
 
 .col-amount {
@@ -190,7 +221,7 @@
 @media (max-width: 1024px) {
   .transaction-table-header,
   .transaction-row {
-    grid-template-columns: 100px 1.5fr 100px 100px 80px 140px;
+    grid-template-columns: 100px 1.5fr 100px 100px 100px 80px 140px;
     gap: 10px;
     padding: 12px 15px;
   }
@@ -235,6 +266,12 @@
 
   .col-category::before {
     content: 'Category: ';
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  .col-type::before {
+    content: 'Type: ';
     font-weight: 600;
     color: var(--text-secondary);
   }

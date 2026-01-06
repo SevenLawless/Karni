@@ -11,6 +11,8 @@ function TransactionForm({ transaction, onSuccess, onCancel }) {
     description: '',
     category: 'other',
     payer: 'zaki',
+    transaction_type: 'shared',
+    person: '',
     notes: ''
   });
   const [errors, setErrors] = useState({});
@@ -24,6 +26,8 @@ function TransactionForm({ transaction, onSuccess, onCancel }) {
         description: transaction.description,
         category: transaction.category,
         payer: transaction.payer,
+        transaction_type: transaction.transaction_type || 'shared',
+        person: transaction.person || '',
         notes: transaction.notes || ''
       });
     }
@@ -50,6 +54,14 @@ function TransactionForm({ transaction, onSuccess, onCancel }) {
 
     if (!formData.payer) {
       newErrors.payer = 'Payer is required';
+    }
+
+    if (!formData.transaction_type) {
+      newErrors.transaction_type = 'Transaction type is required';
+    }
+
+    if (formData.transaction_type === 'personal' && !formData.person) {
+      newErrors.person = 'Person is required for personal transactions';
     }
 
     setErrors(newErrors);
@@ -95,6 +107,8 @@ function TransactionForm({ transaction, onSuccess, onCancel }) {
           description: '',
           category: 'other',
           payer: 'zaki',
+          transaction_type: 'shared',
+          person: '',
           notes: ''
         });
       }
@@ -173,6 +187,45 @@ function TransactionForm({ transaction, onSuccess, onCancel }) {
           </div>
 
           <div className="form-group">
+            <label htmlFor="transaction_type">Transaction Type *</label>
+            <select
+              id="transaction_type"
+              name="transaction_type"
+              value={formData.transaction_type}
+              onChange={handleChange}
+              className={errors.transaction_type ? 'error' : ''}
+            >
+              <option value="shared">Shared Transaction (50/50 split)</option>
+              <option value="personal">Personal Transaction</option>
+            </select>
+            {errors.transaction_type && <span className="error-message">{errors.transaction_type}</span>}
+            <small className="form-hint">
+              {formData.transaction_type === 'shared' 
+                ? 'Shared transactions are split 50/50 between both people.'
+                : 'Personal transactions affect only one person\'s wallet.'}
+            </small>
+          </div>
+
+          {formData.transaction_type === 'personal' && (
+            <div className="form-group">
+              <label htmlFor="person">Person *</label>
+              <select
+                id="person"
+                name="person"
+                value={formData.person}
+                onChange={handleChange}
+                className={errors.person ? 'error' : ''}
+              >
+                <option value="">Select person</option>
+                <option value="zaki">Zaki</option>
+                <option value="reda">Reda</option>
+              </select>
+              {errors.person && <span className="error-message">{errors.person}</span>}
+              <small className="form-hint">Select whose wallet this transaction affects.</small>
+            </div>
+          )}
+
+          <div className="form-group">
             <label htmlFor="payer">Paid By *</label>
             <select
               id="payer"
@@ -186,7 +239,11 @@ function TransactionForm({ transaction, onSuccess, onCancel }) {
               <option value="both">Both (50/50 on the spot)</option>
             </select>
             {errors.payer && <span className="error-message">{errors.payer}</span>}
-            <small className="form-hint">Costs are automatically split 50/50. Select "Both" if you both paid your share on the spot.</small>
+            <small className="form-hint">
+              {formData.transaction_type === 'shared' 
+                ? 'Costs are automatically split 50/50. Select "Both" if you both paid your share on the spot.'
+                : 'Who paid for this transaction (for record keeping).'}
+            </small>
           </div>
 
           <div className="form-group">

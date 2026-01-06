@@ -94,49 +94,61 @@ function TransactionList({ transactions: initialTransactions, onEdit, onDelete, 
             <div className="col-date">Date</div>
             <div className="col-description">Description</div>
             <div className="col-category">Category</div>
+            <div className="col-type">Type</div>
             <div className="col-amount">Amount</div>
             <div className="col-payer">Paid By</div>
             <div className="col-actions">Actions</div>
           </div>
 
-          {transactions.map(transaction => (
-            <div key={transaction.id} className="transaction-row">
-              <div className="col-date">{formatDate(transaction.date)}</div>
-              <div className="col-description">
-                <div className="description-text">{transaction.description}</div>
-                {transaction.notes && (
-                  <div className="notes-text" title={transaction.notes}>
-                    {transaction.notes}
-                  </div>
-                )}
+          {transactions.map(transaction => {
+            const transactionType = transaction.transaction_type || 'shared';
+            return (
+              <div key={transaction.id} className="transaction-row">
+                <div className="col-date">{formatDate(transaction.date)}</div>
+                <div className="col-description">
+                  <div className="description-text">{transaction.description}</div>
+                  {transaction.notes && (
+                    <div className="notes-text" title={transaction.notes}>
+                      {transaction.notes}
+                    </div>
+                  )}
+                </div>
+                <div className="col-category">
+                  <span className="category-badge">{transaction.category}</span>
+                </div>
+                <div className="col-type">
+                  <span className={`type-badge ${transactionType}`}>
+                    {transactionType === 'personal' ? 'Personal' : 'Shared'}
+                  </span>
+                  {transactionType === 'personal' && transaction.person && (
+                    <div className="person-label">({transaction.person === 'zaki' ? 'Zaki' : 'Reda'})</div>
+                  )}
+                </div>
+                <div className="col-amount">{formatCurrency(transaction.amount)}</div>
+                <div className="col-payer">
+                  <span className={`payer-badge ${transaction.payer}`}>
+                    {transaction.payer === 'zaki' ? 'Zaki' : transaction.payer === 'reda' ? 'Reda' : 'Both'}
+                  </span>
+                </div>
+                <div className="col-actions">
+                  <button
+                    onClick={() => onEdit(transaction)}
+                    className="btn-action btn-edit"
+                    title="Edit"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(transaction.id)}
+                    className="btn-action btn-delete"
+                    title="Delete"
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
-              <div className="col-category">
-                <span className="category-badge">{transaction.category}</span>
-              </div>
-              <div className="col-amount">{formatCurrency(transaction.amount)}</div>
-              <div className="col-payer">
-                <span className={`payer-badge ${transaction.payer}`}>
-                  {transaction.payer === 'zaki' ? 'Zaki' : transaction.payer === 'reda' ? 'Reda' : 'Both'}
-                </span>
-              </div>
-              <div className="col-actions">
-                <button
-                  onClick={() => onEdit(transaction)}
-                  className="btn-action btn-edit"
-                  title="Edit"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(transaction.id)}
-                  className="btn-action btn-delete"
-                  title="Delete"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 

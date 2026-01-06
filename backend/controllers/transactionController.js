@@ -33,7 +33,7 @@ async function getTransactionById(req, res) {
 
 async function createTransaction(req, res) {
   try {
-    const { date, amount, description, category, payer, notes } = req.body;
+    const { date, amount, description, category, payer, transaction_type, person, notes } = req.body;
     
     // Validation
     if (!date || !amount || !description || !category || !payer) {
@@ -48,12 +48,31 @@ async function createTransaction(req, res) {
       return res.status(400).json({ error: 'Invalid payer' });
     }
     
+    // Validate transaction_type
+    if (!transaction_type || !['personal', 'shared'].includes(transaction_type)) {
+      return res.status(400).json({ error: 'Invalid transaction_type. Must be "personal" or "shared"' });
+    }
+    
+    // If personal transaction, person field is required
+    if (transaction_type === 'personal') {
+      if (!person || !['zaki', 'reda'].includes(person)) {
+        return res.status(400).json({ error: 'Person field is required for personal transactions and must be "zaki" or "reda"' });
+      }
+    } else {
+      // For shared transactions, person should be null
+      if (person !== null && person !== undefined) {
+        return res.status(400).json({ error: 'Person field should not be set for shared transactions' });
+      }
+    }
+    
     const transactionId = await transactionModel.createTransaction({
       date,
       amount: parseFloat(amount),
       description,
       category,
       payer,
+      transaction_type,
+      person: transaction_type === 'personal' ? person : null,
       notes
     });
     
@@ -71,7 +90,7 @@ async function createTransaction(req, res) {
 
 async function updateTransaction(req, res) {
   try {
-    const { date, amount, description, category, payer, notes } = req.body;
+    const { date, amount, description, category, payer, transaction_type, person, notes } = req.body;
     const { id } = req.params;
     
     // Validation
@@ -87,6 +106,23 @@ async function updateTransaction(req, res) {
       return res.status(400).json({ error: 'Invalid payer' });
     }
     
+    // Validate transaction_type
+    if (!transaction_type || !['personal', 'shared'].includes(transaction_type)) {
+      return res.status(400).json({ error: 'Invalid transaction_type. Must be "personal" or "shared"' });
+    }
+    
+    // If personal transaction, person field is required
+    if (transaction_type === 'personal') {
+      if (!person || !['zaki', 'reda'].includes(person)) {
+        return res.status(400).json({ error: 'Person field is required for personal transactions and must be "zaki" or "reda"' });
+      }
+    } else {
+      // For shared transactions, person should be null
+      if (person !== null && person !== undefined) {
+        return res.status(400).json({ error: 'Person field should not be set for shared transactions' });
+      }
+    }
+    
     const existingTransaction = await transactionModel.getTransactionById(id);
     if (!existingTransaction) {
       return res.status(404).json({ error: 'Transaction not found' });
@@ -98,6 +134,8 @@ async function updateTransaction(req, res) {
       description,
       category,
       payer,
+      transaction_type,
+      person: transaction_type === 'personal' ? person : null,
       notes
     });
     
@@ -158,7 +196,7 @@ async function exportCSV(req, res) {
     const transactions = await transactionModel.getAllTransactionsForExport();
     
     // Convert to CSV
-    const headers = ['ID', 'Date', 'Amount', 'Description', 'Category', 'Payer', 'Notes', 'Created At', 'Updated At'];
+    const headers = ['ID', 'Date', 'Amount', 'Description', 'Category', 'Payer', 'Transaction Type', 'Person', 'Notes', 'Created At', 'Updated At'];
     const csvRows = [headers.join(',')];
     
     transactions.forEach(transaction => {
@@ -169,6 +207,8 @@ async function exportCSV(req, res) {
         `"${(transaction.description || '').replace(/"/g, '""')}"`,
         transaction.category,
         transaction.payer,
+        transaction.transaction_type || 'shared',
+        transaction.person || '',
         `"${(transaction.notes || '').replace(/"/g, '""')}"`,
         transaction.created_at,
         transaction.updated_at

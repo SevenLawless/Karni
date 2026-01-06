@@ -44,22 +44,22 @@ async function getTransactionById(id) {
 }
 
 async function createTransaction(transaction) {
-  const { date, amount, description, category, payer, notes } = transaction;
+  const { date, amount, description, category, payer, transaction_type, person, notes } = transaction;
   const [result] = await pool.execute(
-    `INSERT INTO transactions (date, amount, description, category, payer, notes)
-     VALUES (?, ?, ?, ?, ?, ?)`,
-    [date, amount, description, category, payer, notes || null]
+    `INSERT INTO transactions (date, amount, description, category, payer, transaction_type, person, notes)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    [date, amount, description, category, payer, transaction_type || 'shared', person || null, notes || null]
   );
   return result.insertId;
 }
 
 async function updateTransaction(id, transaction) {
-  const { date, amount, description, category, payer, notes } = transaction;
+  const { date, amount, description, category, payer, transaction_type, person, notes } = transaction;
   await pool.execute(
     `UPDATE transactions 
-     SET date = ?, amount = ?, description = ?, category = ?, payer = ?, notes = ?
+     SET date = ?, amount = ?, description = ?, category = ?, payer = ?, transaction_type = ?, person = ?, notes = ?
      WHERE id = ?`,
-    [date, amount, description, category, payer, notes || null, id]
+    [date, amount, description, category, payer, transaction_type || 'shared', person || null, notes || null, id]
   );
 }
 
@@ -76,10 +76,78 @@ async function recalculateBalances() {
   
   // Recalculate balances
   for (const transaction of transactions) {
-    const halfAmount = parseFloat(transaction.amount) / 2;
+    const transactionType = transaction.transaction_type || 'shared';
+    const amount = parseFloat(transaction.amount);
+    
+    if (transactionType === 'personal') {
+      // Personal transaction: only affects the specified person's wallet
+      const person = transaction.person;
+      if (person === 'zaki' || person === 'reda') {
+        // For personal transactions, only the person's wallet is affected
+        // The amount decreases their wallet (expense)
+        // Payer field is informational only - doesn't affect other person's balance
+        await pool.execute(
+          'UPDATE users SET balance = balance - ? WHERE name = ?',
+          [amount, person]
+        );
+      }
+    } else {
+      // Shared transaction: split 50/50
+      const halfAmount = amount / 2;
+      
+      if (transaction.payer === 'zaki') {
+        // Zaki paid, so Zaki is owed half, Reda owes half
+        await pool.execute(
+          'UPDATE users SET balance = balance + ? WHERE name = ?',
+          [halfAmount, 'zaki']
+        );
+        await pool.execute(
+          'UPDATE users SET balance = balance - ? WHERE name = ?',
+          [halfAmount, 'reda']
+        );
+      } else if (transaction.payer === 'reda') {
+        // Reda paid, so Reda is owed half, Zaki owes half
+        await pool.execute(
+          'UPDATE users SET balance = balance + ? WHERE name = ?',
+          [halfAmount, 'reda']
+        );
+        await pool.execute(
+          'UPDATE users SET balance = balance - ? WHERE name = ?',
+          [halfAmount, 'zaki']
+        );
+      }
+      // If payer is 'both', no balance change (both paid their share on the spot)
+    }
+  }
+}
+
+async function updateBalancesForTransaction(transaction, isNew = true) {
+  if (!isNew) {
+    // For updates, we need to recalculate from scratch
+    await recalculateBalances();
+    return;
+  }
+
+  const transactionType = transaction.transaction_type || 'shared';
+  const amount = parseFloat(transaction.amount);
+
+  if (transactionType === 'personal') {
+    // Personal transaction: only affects the specified person's wallet
+    const person = transaction.person;
+    if (person === 'zaki' || person === 'reda') {
+      // For personal transactions, only the person's wallet is affected
+      // The amount decreases their wallet (expense)
+      // Payer field is informational only - doesn't affect other person's balance
+      await pool.execute(
+        'UPDATE users SET balance = balance - ? WHERE name = ?',
+        [amount, person]
+      );
+    }
+  } else {
+    // Shared transaction: split 50/50
+    const halfAmount = amount / 2;
     
     if (transaction.payer === 'zaki') {
-      // Zaki paid, so Zaki is owed half, Reda owes half
       await pool.execute(
         'UPDATE users SET balance = balance + ? WHERE name = ?',
         [halfAmount, 'zaki']
@@ -89,7 +157,6 @@ async function recalculateBalances() {
         [halfAmount, 'reda']
       );
     } else if (transaction.payer === 'reda') {
-      // Reda paid, so Reda is owed half, Zaki owes half
       await pool.execute(
         'UPDATE users SET balance = balance + ? WHERE name = ?',
         [halfAmount, 'reda']
@@ -99,42 +166,8 @@ async function recalculateBalances() {
         [halfAmount, 'zaki']
       );
     }
-    // If payer is 'both', no balance change (both paid their share on the spot)
+    // If payer is 'both', no balance change needed (both paid their share on the spot)
   }
-}
-
-async function updateBalancesForTransaction(transaction, isNew = true) {
-  const halfAmount = parseFloat(transaction.amount) / 2;
-  
-  if (transaction.payer === 'zaki') {
-    if (isNew) {
-      await pool.execute(
-        'UPDATE users SET balance = balance + ? WHERE name = ?',
-        [halfAmount, 'zaki']
-      );
-      await pool.execute(
-        'UPDATE users SET balance = balance - ? WHERE name = ?',
-        [halfAmount, 'reda']
-      );
-    } else {
-      // For updates, we need to recalculate from scratch
-      await recalculateBalances();
-    }
-  } else if (transaction.payer === 'reda') {
-    if (isNew) {
-      await pool.execute(
-        'UPDATE users SET balance = balance + ? WHERE name = ?',
-        [halfAmount, 'reda']
-      );
-      await pool.execute(
-        'UPDATE users SET balance = balance - ? WHERE name = ?',
-        [halfAmount, 'zaki']
-      );
-    } else {
-      await recalculateBalances();
-    }
-  }
-  // If payer is 'both', no balance change needed (both paid their share on the spot)
 }
 
 async function getBalances() {
@@ -165,6 +198,8 @@ async function getAllTransactionsForExport() {
       description,
       category,
       payer,
+      transaction_type,
+      person,
       notes,
       created_at,
       updated_at
